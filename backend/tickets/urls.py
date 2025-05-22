@@ -19,7 +19,7 @@ from .views import (
 
 @csrf_exempt
 def run_migrations(request):
-    if request.method == 'POST' and request.headers.get('X-Secret-Key') == 'django-insecure-a3xt+yyzqt=$5z@rz@=j6%e)hgh5#c=6maqx7h5nb!&i!$tlrr':
+    if request.method == 'POST' and request.headers.get('X-Secret-Key') == 'cle':
         from django.core.management import call_command
         call_command('migrate')
         return HttpResponse("Migrations appliquées !")
