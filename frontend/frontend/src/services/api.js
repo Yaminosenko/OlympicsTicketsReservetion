@@ -1,7 +1,10 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8000',
+  baseURL: process.env.REACT_APP_API_URL ||  // Utilise la variable d'env si elle existe
+    (process.env.NODE_ENV === 'development'
+      ? 'http://localhost:8000'  // Fallback pour le dev
+      : 'https://olympics-tickets-reservetions.onrender.com/'),
 });
 
 

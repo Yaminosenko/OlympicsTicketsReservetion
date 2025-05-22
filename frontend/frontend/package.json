@@ -1,6 +1,7 @@
 {
   "name": "frontend",
   "version": "0.1.0",
+  "homepage": "https://olympics-tickets-reservetions.onrender.com/",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.14.0",
