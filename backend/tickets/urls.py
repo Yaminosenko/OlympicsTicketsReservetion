@@ -9,6 +9,8 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from .models import TicketOffer
+from django.core.exceptions import PermissionDenied
 from .views import (
     UserViewSet,
     TicketOfferViewSet,
@@ -18,6 +20,49 @@ from .views import (
     CurrentUserView,
     debug_user,
 )
+
+
+@csrf_exempt
+def create_sample_offers(request):
+    # Protection basique (à supprimer après usage)
+    if request.headers.get('X-Secret-Key') != 'cle':
+        raise PermissionDenied
+
+    # Offres par défaut à créer
+    sample_offers = [
+        {
+            'name': 'Pass Solo Jour 1',
+            'offer_type': 'SOLO',
+            'description': 'Accès 1 personne pour la journée d\'ouverture',
+            'price': 50.00
+        },
+        {
+            'name': 'Pass Duo Weekend',
+            'offer_type': 'DUO',
+            'description': 'Accès 2 personnes pour le weekend',
+            'price': 85.00
+        },
+        {
+            'name': 'Pack Famille',
+            'offer_type': 'FAMILY',
+            'description': 'Accès 4 personnes pour 3 jours',
+            'price': 200.00
+        }
+    ]
+
+    created_offers = []
+    for offer_data in sample_offers:
+        offer, created = TicketOffer.objects.get_or_create(
+            name=offer_data['name'],
+            defaults=offer_data
+        )
+        created_offers.append({
+            'id': offer.id,
+            'name': offer.name,
+            'created': created
+        })
+
+    return JsonResponse({'status': 'success', 'offers': created_offers})
 
 @csrf_exempt
 def create_superuser(request): #pas d'acces au shell Render
@@ -29,7 +74,7 @@ def create_superuser(request): #pas d'acces au shell Render
         User.objects.create_superuser(username, email, password)
         return JsonResponse({'status': 'Superuser created'})
 
-    return JsonResponse({'error': 'POST method required'}, status=400)
+    return JsonResponse({'error': 'Accès refusé'}, status=400)
 
 @csrf_exempt
 def run_migrations(request): #pas d'acces au shell Render
@@ -58,8 +103,11 @@ urlpatterns = [
 
     # Nouvelle route pour l'achat de tickets
     path('api/tickets/purchase/',TicketViewSet.as_view({'post': 'purchase'}),name='ticket-purchase'),
-    path('secret-migrate/', run_migrations),
-    path('secret-superuser/', create_superuser),
+
+    #route pour outrepasser le shell (gratuit)
+    path('api/secret-migrate/', run_migrations),
+    path('api/secret-superuser/', create_superuser),
+    path('api/create-sample-offers/', create_sample_offers, name='create_offers'),
 
     #path('users/me/', debug_user),
 
