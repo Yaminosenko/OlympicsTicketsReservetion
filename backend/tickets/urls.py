@@ -6,6 +6,8 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from django.urls import path, include
 from django.contrib import admin
 from django.http import HttpResponse
+from django.contrib.auth.models import User
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .views import (
     UserViewSet,
@@ -18,7 +20,19 @@ from .views import (
 )
 
 @csrf_exempt
-def run_migrations(request):
+def create_superuser(request): #pas d'acces au shell Render
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        User.objects.create_superuser(username, email, password)
+        return JsonResponse({'status': 'Superuser created'})
+
+    return JsonResponse({'error': 'POST method required'}, status=400)
+
+@csrf_exempt
+def run_migrations(request): #pas d'acces au shell Render
     if request.method == 'POST' and request.headers.get('X-Secret-Key') == 'cle':
         from django.core.management import call_command
         call_command('migrate')
