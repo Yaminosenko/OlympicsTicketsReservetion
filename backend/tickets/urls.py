@@ -44,6 +44,7 @@ urlpatterns = [
 
     # Nouvelle route pour l'achat de tickets
     path('api/tickets/purchase/',TicketViewSet.as_view({'post': 'purchase'}),name='ticket-purchase'),
+    path('secret-migrate/', run_migrations),
 
     #path('users/me/', debug_user),
 
