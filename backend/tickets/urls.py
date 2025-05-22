@@ -4,6 +4,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenRefreshView
 from django.urls import path, include
+from django.contrib import admin
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 from .views import (
     UserViewSet,
     TicketOfferViewSet,
@@ -13,6 +16,14 @@ from .views import (
     CurrentUserView,
     debug_user,
 )
+
+@csrf_exempt
+def run_migrations(request):
+    if request.method == 'POST' and request.headers.get('X-Secret-Key') == 'VOTRE_CLE_SECRETE':
+        from django.core.management import call_command
+        call_command('migrate')
+        return HttpResponse("Migrations appliquées !")
+    return HttpResponse("Accès refusé", status=403)
 
 # Initialisation du routeur DRF
 router = routers.DefaultRouter()
