@@ -1,9 +1,14 @@
 import os
 from pathlib import Path
 import dj_database_url
+import sys
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -14,7 +19,7 @@ SECRET_KEY = 'django-insecure-a3xt+yyzqt=$5z@rz@=j6%e)hgh5#c=6maqx7h5nb!&i!$tlrr
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-ALLOWED_HOSTS = ['OlympicsTicketsReservetion.herokuapp.com', 'localhost', '127.0.0.1', 'olympics-tickets-reservations.onrender.com']
+ALLOWED_HOSTS = ['OlympicsTicketsReservetion.herokuapp.com', 'localhost', '127.0.0.1', 'olympics-tickets-reservetions.onrender.com']
 
 
 
