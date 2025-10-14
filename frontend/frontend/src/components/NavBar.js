@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { styled } from '@mui/material/styles';
 import SportsScoreIcon from '@mui/icons-material/SportsScore';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
@@ -19,6 +20,8 @@ const NavBar = () => {
     logout();
     navigate('/login');
   };
+
+ const isAdmin = user && (user.is_staff || user.is_superuser);
 
 return (
     <StyledAppBar position="static">
@@ -45,6 +48,40 @@ return (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {isAuthenticated && user && (
             <>
+              {/* Bouton "Administration" (visible seulement pour les admins) */}
+              {isAdmin && (
+                <>
+                  <Button
+                    color="inherit"
+                    component={Link}
+                    to="/admin"
+                    startIcon={<AdminPanelSettingsIcon />}
+                    sx={{
+                      display: { xs: 'none', sm: 'flex' },
+                      mr: 1,
+                      '&:hover': {
+                        backgroundColor: 'rgba(255,255,255,0.1)'
+                      }
+                    }}
+                  >
+                    Administration
+                  </Button>
+
+                  {/* Version icône seule pour mobile */}
+                  <IconButton
+                    color="inherit"
+                    component={Link}
+                    to="/admin"
+                    sx={{
+                      display: { xs: 'flex', sm: 'none' },
+                      mr: 1
+                    }}
+                  >
+                    <AdminPanelSettingsIcon />
+                  </IconButton>
+                </>
+              )}
+
               {/* Bouton "Mes billets" (visible seulement si connecté) */}
               <Button
                 color="inherit"
@@ -79,15 +116,30 @@ return (
 
           {isAuthenticated && user ? (
             <>
-              <Avatar
-                sx={{
-                  bgcolor: 'secondary.main',
-                  width: 36,
-                  height: 36
-                }}
-              >
-                {user.email.charAt(0).toUpperCase()}
-              </Avatar>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                {/* Badge admin à côté de l'avatar */}
+                {isAdmin && (
+                  <AdminPanelSettingsIcon
+                    sx={{
+                      fontSize: '1rem',
+                      color: 'gold',
+                      display: { xs: 'none', sm: 'block' }
+                    }}
+                  />
+                )}
+                <Avatar
+                  sx={{
+                    bgcolor: isAdmin ? 'gold' : 'secondary.main',
+                    width: 36,
+                    height: 36,
+                    color: isAdmin ? 'black' : 'white',
+                    fontSize: '0.9rem',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  {user.email.charAt(0).toUpperCase()}
+                </Avatar>
+              </Box>
               <Button
                 color="inherit"
                 onClick={handleLogout}
