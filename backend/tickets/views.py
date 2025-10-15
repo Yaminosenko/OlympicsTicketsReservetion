@@ -56,7 +56,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response({'status': 'validated'})
 
 class CurrentUserView(RetrieveAPIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = CurrentUserSerializer
 
     def get_object(self):
