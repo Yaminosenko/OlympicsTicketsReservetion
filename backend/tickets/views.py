@@ -354,12 +354,12 @@ def admin_sales_stats(request):
 
 @api_view(['GET'])
 def admin_dashboard(request):
-    """Page principale de l'admin avec tous les données"""
+    """Dashboard admin avec statistiques et offres"""
     if not request.user.is_authenticated or not (request.user.is_staff or request.user.is_superuser):
         return Response({'error': 'Accès non autorisé'}, status=status.HTTP_403_FORBIDDEN)
 
     try:
-        # Récupérer toutes les offres pour l'onglet gestion
+        # Récupérer les offres avec statistiques (comme dans AdminTicketOfferViewSet)
         offers = TicketOffer.objects.all().annotate(
             ticket_count=Count('ticket')
         )
@@ -376,15 +376,13 @@ def admin_dashboard(request):
                 'available': offer.available,
                 'ticket_count': offer.ticket_count,
                 'revenue': float(offer.price * offer.ticket_count),
-                'created_at': offer.created_at.strftime('%d/%m/%Y %H:%M'),
-                'updated_at': offer.updated_at.strftime('%d/%m/%Y %H:%M'),
+                'created_at': offer.created_at.isoformat(),
+                'updated_at': offer.updated_at.isoformat(),
             })
 
         # Statistiques pour les graphiques
         sales_by_offer = Ticket.objects.values(
-            'offer__id',
-            'offer__name',
-            'offer__offer_type'
+            'offer__name'
         ).annotate(
             total_sales=Count('id'),
             total_revenue=Sum('offer__price')
@@ -395,8 +393,7 @@ def admin_dashboard(request):
         chart_revenue_data = []
 
         for stat in sales_by_offer:
-            offer_name = f"{stat['offer__name']}"
-            chart_labels.append(offer_name)
+            chart_labels.append(stat['offer__name'])
             chart_sales_data.append(stat['total_sales'])
             chart_revenue_data.append(float(stat['total_revenue']) if stat['total_revenue'] else 0)
 
@@ -415,10 +412,10 @@ def admin_dashboard(request):
                 'revenue': chart_revenue_data,
             },
             'global_stats': {
-                'total_tickets': total_stats['total_tickets'],
+                'total_tickets': total_stats['total_tickets'] or 0,
                 'total_revenue': float(total_stats['total_revenue']) if total_stats['total_revenue'] else 0,
-                'used_tickets': total_stats['used_tickets'],
-                'available_tickets': total_stats['total_tickets'] - total_stats['used_tickets']
+                'used_tickets': total_stats['used_tickets'] or 0,
+                'available_tickets': (total_stats['total_tickets'] or 0) - (total_stats['used_tickets'] or 0)
             }
         })
 

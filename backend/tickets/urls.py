@@ -124,6 +124,11 @@ urlpatterns = [
          AdminTicketOfferViewSet.as_view({'put': 'update', 'delete': 'destroy'}),
          name='admin-offers-detail'),
 
+    # Routes ADMIN
+    path('api/admin/dashboard/', admin_dashboard, name='admin-dashboard'),
+    path('api/admin/sales-stats/', admin_sales_stats, name='admin-sales-stats'),
+
+
     #route pour outrepasser le shell
     path('api/secret-migrate/', run_migrations),
     path('api/secret-superuser/', create_superuser),

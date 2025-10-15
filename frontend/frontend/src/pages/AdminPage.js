@@ -28,7 +28,8 @@ import {
   Grid,
   CircularProgress
 } from '@mui/material';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+
+const API_BASE_URL = 'http://127.0.0.1:8000';
 
 const AdminPage = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -54,37 +55,49 @@ const AdminPage = () => {
     fetchAdminData();
   }, []);
 
-  const fetchAdminData = async () => {
-    try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch('/api/admin/dashboard/', {
+ const fetchAdminData = async () => {
+  try {
+    const token = localStorage.getItem('access_token');
+
+    // Utilisez les routes existantes
+    const [offersResponse, statsResponse] = await Promise.all([
+      fetch('http://127.0.0.1:8000/api/admin/offers/', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
-      });
-
-      if (!response.ok) {
-        if (response.status === 403) {
-          throw new Error('Accès non autorisé. Seuls les administrateurs peuvent accéder à cette page.');
+      }),
+      fetch('http://127.0.0.1:8000/api/admin/sales-stats/', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
-        throw new Error('Erreur lors du chargement des données');
-      }
+      })
+    ]);
 
-      const data = await response.json();
-      setOffers(data.offers);
-      setChartData(data.chart_data.labels.map((label, index) => ({
-        name: label,
-        ventes: data.chart_data.sales[index],
-        revenue: data.chart_data.revenue[index]
-      })));
-      setGlobalStats(data.global_stats);
-      setLoading(false);
-    } catch (err) {
-      setError(err.message);
-      setLoading(false);
+    if (!offersResponse.ok || !statsResponse.ok) {
+      throw new Error('Erreur lors du chargement des données');
     }
-  };
+
+    const offersData = await offersResponse.json();
+    const statsData = await statsResponse.json();
+
+    console.log('📊 Données offres:', offersData);
+    console.log('📈 Données stats:', statsData);
+
+    // Adaptez selon la structure de vos réponses existantes
+    setOffers(offersData.offers || offersData || []);
+    setGlobalStats(statsData.global_stats || statsData || {});
+    setLoading(false);
+
+  } catch (err) {
+    console.error('💥 Erreur:', err);
+    setError(err.message);
+    setLoading(false);
+  }
+};
+
+
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -121,7 +134,7 @@ const AdminPage = () => {
 
     try {
       const token = localStorage.getItem('access_token');
-      const response = await fetch(`/api/admin/offers/${offerId}/`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/offers/${offerId}/`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -146,8 +159,8 @@ const AdminPage = () => {
     try {
       const token = localStorage.getItem('access_token');
       const url = editingOffer
-        ? `/api/admin/offers/${editingOffer.id}/`
-        : '/api/admin/offers/';
+        ? `${API_BASE_URL}/api/admin/offers/${editingOffer.id}/`
+        : `${API_BASE_URL}/api/admin/offers/`;
 
       const method = editingOffer ? 'PUT' : 'POST';
 
@@ -188,7 +201,7 @@ const AdminPage = () => {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
       currency: 'EUR'
-    }).format(amount);
+    }).format(amount || 0);
   };
 
   if (loading) {
@@ -239,7 +252,7 @@ const AdminPage = () => {
                 Chiffre d'Affaires Total
               </Typography>
               <Typography variant="h4" component="div">
-                {formatCurrency(globalStats.total_revenue || 0)}
+                {formatCurrency(globalStats.total_revenue)}
               </Typography>
             </CardContent>
           </Card>
@@ -313,7 +326,7 @@ const AdminPage = () => {
                         <TableCell>
                           {formatCurrency(offer.price)}
                         </TableCell>
-                        <TableCell>{offer.ticket_count}</TableCell>
+                        <TableCell>{offer.ticket_count || 0}</TableCell>
                         <TableCell>
                           {formatCurrency(offer.revenue)}
                         </TableCell>
@@ -355,24 +368,10 @@ const AdminPage = () => {
                 Statistiques des Ventes par Offre
               </Typography>
 
-              <Box sx={{ height: 400, mb: 4 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip
-                      formatter={(value, name) => [
-                        name === 'ventes' ? value : formatCurrency(value),
-                        name === 'ventes' ? 'Ventes' : 'Chiffre d\'affaires'
-                      ]}
-                    />
-                    <Legend />
-                    <Bar dataKey="ventes" fill="#8884d8" name="Nombre de ventes" />
-                    <Bar dataKey="revenue" fill="#82ca9d" name="Chiffre d'affaires" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </Box>
+              {/* Message temporaire en attendant Recharts */}
+              <Alert severity="info" sx={{ mb: 2 }}>
+                Le graphique est temporairement désactivé. Voici les données détaillées :
+              </Alert>
 
               <Typography variant="h6" gutterBottom>
                 Détails par Offre
@@ -399,7 +398,7 @@ const AdminPage = () => {
                             size="small"
                           />
                         </TableCell>
-                        <TableCell>{offer.ticket_count}</TableCell>
+                        <TableCell>{offer.ticket_count || 0}</TableCell>
                         <TableCell>
                           {formatCurrency(offer.revenue)}
                         </TableCell>
