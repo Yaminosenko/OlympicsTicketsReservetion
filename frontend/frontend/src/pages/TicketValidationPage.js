@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Box,
   Paper,
@@ -10,11 +10,17 @@ import {
   CardContent,
   Chip,
   CircularProgress,
-  Divider
+  Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material';
 import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
+import jsQR from 'jsqr';
 
 const API_BASE_URL = 'http://127.0.0.1:8000';
 
@@ -24,10 +30,54 @@ const TicketValidationPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [imageDialogOpen, setImageDialogOpen] = useState(false);
+  const fileInputRef = useRef(null);
+  const canvasRef = useRef(null);
+
+  // Fonction pour traiter l'image et lire le QR code
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const img = new Image();
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+
+    img.onload = () => {
+      // Redimensionner le canvas à la taille de l'image
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      // Dessiner l'image sur le canvas
+      ctx.drawImage(img, 0, 0, img.width, img.height);
+
+      // Récupérer les données de l'image
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+      // Scanner le QR code
+      const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
+
+      if (qrCode) {
+        setQrCodeData(qrCode.data);
+        setImageDialogOpen(false);
+        setError('');
+        // Vérifier automatiquement le ticket
+        setTimeout(() => handleVerifyTicket(), 500);
+      } else {
+        setError('Aucun QR code trouvé dans l\'image');
+      }
+    };
+
+    img.onerror = () => {
+      setError('Erreur lors du chargement de l\'image');
+    };
+
+    img.src = URL.createObjectURL(file);
+  };
 
   const handleVerifyTicket = async () => {
     if (!qrCodeData.trim()) {
-      setError('Veuillez entrer le code QR du ticket');
+      setError('Veuillez entrer ou scanner un code QR');
       return;
     }
 
@@ -83,12 +133,11 @@ const TicketValidationPage = () => {
 
       if (response.ok) {
         setSuccess(data.message);
-        // Mettre à jour les infos du ticket
         setTicketInfo(prev => ({
           ...prev,
           is_used: true
         }));
-        setQrCodeData(''); // Réinitialiser pour le prochain scan
+        setQrCodeData('');
       } else {
         setError(data.error || 'Erreur lors de la validation');
       }
@@ -104,6 +153,13 @@ const TicketValidationPage = () => {
     setTicketInfo(null);
     setError('');
     setSuccess('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const openImageDialog = () => {
+    setImageDialogOpen(true);
   };
 
   return (
@@ -113,7 +169,7 @@ const TicketValidationPage = () => {
       </Typography>
 
       <Typography variant="body1" color="textSecondary" sx={{ mb: 3 }}>
-        Scannez ou entrez manuellement le code QR d'un ticket pour le valider
+        Scannez ou importez une image de QR code pour valider un ticket
       </Typography>
 
       {/* Zone de saisie du QR code */}
@@ -128,14 +184,14 @@ const TicketValidationPage = () => {
           label="Code QR du ticket"
           value={qrCodeData}
           onChange={(e) => setQrCodeData(e.target.value)}
-          placeholder="Collez ou scannez le code QR ici..."
+          placeholder="Collez le code QR, scannez avec la caméra, ou importez une image..."
           multiline
           rows={3}
           variant="outlined"
           sx={{ mb: 2 }}
         />
 
-        <Box sx={{ display: 'flex', gap: 2 }}>
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
           <Button
             variant="contained"
             onClick={handleVerifyTicket}
@@ -143,6 +199,14 @@ const TicketValidationPage = () => {
             startIcon={loading ? <CircularProgress size={20} /> : <QrCodeScannerIcon />}
           >
             Vérifier le Ticket
+          </Button>
+
+          <Button
+            variant="outlined"
+            onClick={openImageDialog}
+            startIcon={<PhotoCameraIcon />}
+          >
+            Importer une Image
           </Button>
 
           <Button
@@ -258,16 +322,57 @@ const TicketValidationPage = () => {
         </Paper>
       )}
 
+      {/* Dialog pour l'import d'image */}
+      <Dialog open={imageDialogOpen} onClose={() => setImageDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          <PhotoCameraIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
+          Importer une image de QR code
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+            Sélectionnez une image contenant un QR code de ticket
+          </Typography>
+
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            onChange={handleImageUpload}
+            style={{ display: 'none' }}
+          />
+
+          <Button
+            variant="contained"
+            component="span"
+            onClick={() => fileInputRef.current?.click()}
+            fullWidth
+            startIcon={<PhotoCameraIcon />}
+            sx={{ mb: 2 }}
+          >
+            Choisir une image
+          </Button>
+
+          <canvas ref={canvasRef} style={{ display: 'none' }} />
+
+          <Typography variant="caption" color="textSecondary">
+            Formats supportés: JPG, PNG, GIF, WebP
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setImageDialogOpen(false)}>Annuler</Button>
+        </DialogActions>
+      </Dialog>
+
       {/* Instructions */}
       <Paper sx={{ p: 2, mt: 3, backgroundColor: 'grey.50' }}>
         <Typography variant="subtitle2" gutterBottom>
           Instructions :
         </Typography>
         <Typography variant="body2" color="textSecondary">
-          1. Scannez le QR code du ticket avec un lecteur externe<br/>
-          2. Collez le code dans le champ ci-dessus<br/>
-          3. Cliquez sur "Vérifier le Ticket" pour voir les informations<br/>
-          4. Cliquez sur "Valider le Ticket" pour marquer comme utilisé
+          1. <strong>Import d'image</strong> : Cliquez sur "Importer une Image" et sélectionnez une photo du QR code<br/>
+          2. <strong>Saisie manuelle</strong> : Collez le code QR dans le champ texte<br/>
+          3. <strong>Vérification</strong> : Cliquez sur "Vérifier le Ticket" pour voir les informations<br/>
+          4. <strong>Validation</strong> : Cliquez sur "Valider le Ticket" pour marquer comme utilisé
         </Typography>
       </Paper>
     </Box>
