@@ -92,7 +92,7 @@ router = routers.DefaultRouter()
 router.register(r'api/users', UserViewSet, basename='users')
 router.register(r'api/ticket-offers', TicketOfferViewSet, basename='ticket-offers')
 router.register(r'api/tickets', TicketViewSet, basename='tickets')
-router.register(r'api/admin-stats', AdminStatsViewSet, basename='admin-stats')
+#.register(r'api/admin-stats', AdminStatsViewSet, basename='admin-stats')
 router.register(r'api/admin/offers', AdminTicketOfferViewSet, basename='admin-offers')
 
 urlpatterns = [
@@ -116,13 +116,19 @@ urlpatterns = [
          TicketViewSet.as_view({'post': 'validate_ticket'}),
          name='admin-validate-ticket'),
 
-    # Routes pour la gestion admin des offres (via le ViewSet)
+    # Routes pour la gestion admin des offres
     path('api/admin/offers/',
          AdminTicketOfferViewSet.as_view({'get': 'list', 'post': 'create'}),
          name='admin-offers-list'),
     path('api/admin/offers/<int:pk>/',
          AdminTicketOfferViewSet.as_view({'put': 'update', 'delete': 'destroy'}),
          name='admin-offers-detail'),
+    path('api/admin/offers/<int:pk>/activate/',
+         AdminTicketOfferViewSet.as_view({'post': 'activate'}),
+         name='admin-offers-activate'),
+    path('api/admin/offers/<int:pk>/permanent-delete/',
+         AdminTicketOfferViewSet.as_view({'delete': 'permanent_delete'}),
+         name='admin-offers-permanent-delete'),
 
     # Routes ADMIN
     path('api/admin/dashboard/', admin_dashboard, name='admin-dashboard'),

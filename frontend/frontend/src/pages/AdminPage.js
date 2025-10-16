@@ -155,6 +155,64 @@ const AdminPage = () => {
     }
   };
 
+  const handleActivateOffer = async (offerId) => {
+  if (!window.confirm('Êtes-vous sûr de vouloir réactiver cette offre ?')) {
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem('access_token');
+    const response = await fetch(`${API_BASE_URL}/api/admin/offers/${offerId}/activate/`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.ok) {
+      setSuccess('Offre réactivée avec succès');
+      fetchAdminData();
+      setTimeout(() => setSuccess(''), 3000);
+    } else {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Erreur lors de la réactivation');
+    }
+  } catch (err) {
+    setError(err.message);
+    setTimeout(() => setError(''), 5000);
+  }
+};
+
+const handlePermanentDelete = async (offer) => {
+  if (!window.confirm(`Êtes-vous sûr de vouloir SUPPRIMER DÉFINITIVEMENT l'offre "${offer.name}" ?\n\nCette action est irréversible !`)) {
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem('access_token');
+    const response = await fetch(`${API_BASE_URL}/api/admin/offers/${offer.id}/permanent-delete/`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.ok) {
+      setSuccess('Offre supprimée définitivement avec succès');
+      fetchAdminData();
+      setTimeout(() => setSuccess(''), 3000);
+    } else {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Erreur lors de la suppression');
+    }
+  } catch (err) {
+    setError(err.message);
+    setTimeout(() => setError(''), 5000);
+  }
+};
+
   const handleSubmitOffer = async () => {
     try {
       const token = localStorage.getItem('access_token');
@@ -338,21 +396,60 @@ const AdminPage = () => {
                           />
                         </TableCell>
                         <TableCell>
-                          <Button
-                            size="small"
-                            onClick={() => handleEditOffer(offer)}
-                            sx={{ mr: 1 }}
-                          >
-                            Modifier
-                          </Button>
-                          <Button
-                            size="small"
-                            color="error"
-                            onClick={() => handleDeleteOffer(offer.id)}
-                            disabled={!offer.available}
-                          >
-                            Désactiver
-                          </Button>
+                          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                            {/* Bouton Modifier - Toujours visible sauf si offre supprimée */}
+                            <Button
+                              size="small"
+                              onClick={() => handleEditOffer(offer)}
+                              variant="outlined"
+                              color="primary"
+                            >
+                              Modifier
+                            </Button>
+
+                            {/* Pour les offres ACTIVES */}
+                            {offer.available ? (
+                              <Button
+                                size="small"
+                                color="warning"
+                                onClick={() => handleDeleteOffer(offer.id)}
+                                variant="outlined"
+                                title="Désactiver l'offre"
+                              >
+                                Désactiver
+                              </Button>
+                            ) : (
+                              /* Pour les offres INACTIVES */
+                              <>
+                                <Button
+                                  size="small"
+                                  color="success"
+                                  onClick={() => handleActivateOffer(offer.id)}
+                                  variant="outlined"
+                                  title="Réactiver l'offre"
+                                >
+                                  Réactiver
+                                </Button>
+                                <Button
+                                  size="small"
+                                  color="error"
+                                  onClick={() => handlePermanentDelete(offer)}
+                                  variant="outlined"
+                                  title="Supprimer définitivement"
+                                  disabled={offer.ticket_count > 0} // Désactivé si des tickets existent
+                                >
+                                  {offer.ticket_count > 0 ? 'Tickets liés' : 'Supprimer'}
+                                </Button>
+                              </>
+                            )}
+                          </Box>
+
+                          {/* Message d'information si suppression impossible */}
+                          {!offer.available && offer.ticket_count > 0 && (
+                            <Typography variant="caption" color="textSecondary" display="block" sx={{ mt: 0.5 }}>
+                              {offer.ticket_count} ticket(s) associé(s) - suppression impossible
+                            </Typography>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}

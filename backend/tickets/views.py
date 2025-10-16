@@ -185,14 +185,6 @@ class TicketViewSet(viewsets.ModelViewSet):
 
 
 
-
-
-class AdminStatsViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = AdminStats.objects.all()
-    serializer_class = AdminStatsSerializer
-    permission_classes = [permissions.IsAdminUser]
-
-
 class UserRegistrationView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
     serializer_class = UserSerializer
@@ -260,12 +252,39 @@ class AdminTicketOfferViewSet(viewsets.ModelViewSet):
             })
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def destroy(self, request, pk=None):
-        """Supprimer une offre (désactivation)"""
+    def destroy(self, request, *args, **kwargs):
+        """Désactiver une offre (soft delete)"""
         offer = self.get_object()
         offer.available = False
         offer.save()
         return Response({'message': 'Offre désactivée avec succès'})
+
+    @action(detail=True, methods=['post'])
+    def activate(self, request, pk=None):
+        """Réactiver une offre désactivée"""
+        offer = self.get_object()
+        if offer.available:
+            return Response({'error': 'Cette offre est déjà active'}, status=status.HTTP_400_BAD_REQUEST)
+
+        offer.available = True
+        offer.save()
+        return Response({'message': 'Offre réactivée avec succès'})
+
+    @action(detail=True, methods=['delete'])
+    def permanent_delete(self, request, pk=None):
+        """Supprimer définitivement une offre"""
+        offer = self.get_object()
+
+        # Vérifier si l'offre a des tickets associés
+        ticket_count = Ticket.objects.filter(offer=offer).count()
+        if ticket_count > 0:
+            return Response({
+                'error': f'Impossible de supprimer cette offre. {ticket_count} ticket(s) y sont associés.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        offer_name = offer.name
+        offer.delete()
+        return Response({'message': f'Offre "{offer_name}" supprimée définitivement'})
 
 
 @api_view(['GET'])
@@ -359,7 +378,7 @@ def admin_dashboard(request):
         return Response({'error': 'Accès non autorisé'}, status=status.HTTP_403_FORBIDDEN)
 
     try:
-        # Récupérer les offres avec statistiques (comme dans AdminTicketOfferViewSet)
+        # Récupérer les offres avec statistiques
         offers = TicketOffer.objects.all().annotate(
             ticket_count=Count('ticket')
         )
