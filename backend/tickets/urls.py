@@ -15,13 +15,13 @@ from .views import (
     UserViewSet,
     TicketOfferViewSet,
     TicketViewSet,
-    AdminStatsViewSet,
     UserRegistrationView,
     CurrentUserView,
     debug_user,
     admin_dashboard,
     admin_sales_stats,
     AdminTicketOfferViewSet,
+    admin_verify_ticket,
 )
 
 
@@ -108,29 +108,18 @@ urlpatterns = [
     # Route pour l'achat de tickets
     path('api/tickets/purchase/',TicketViewSet.as_view({'post': 'purchase'}),name='ticket-purchase'),
 
-# Routes admin supplémentaires pour les tickets
-    path('api/admin/tickets/',
-         TicketViewSet.as_view({'get': 'admin_tickets'}),
-         name='admin-tickets-list'),
-    path('api/admin/tickets/<int:pk>/validate/',
-         TicketViewSet.as_view({'post': 'validate_ticket'}),
-         name='admin-validate-ticket'),
+    # Routes admin supplémentaires pour les tickets
+    path('api/admin/tickets/',TicketViewSet.as_view({'get': 'admin_tickets'}), name='admin-tickets-list'),
+    path('api/admin/tickets/<int:pk>/validate/',TicketViewSet.as_view({'post': 'validate_ticket'}),name='admin-validate-ticket'),
+    path('api/admin/verify-ticket/', admin_verify_ticket, name='admin-verify-ticket'),
 
     # Routes pour la gestion admin des offres
-    path('api/admin/offers/',
-         AdminTicketOfferViewSet.as_view({'get': 'list', 'post': 'create'}),
-         name='admin-offers-list'),
-    path('api/admin/offers/<int:pk>/',
-         AdminTicketOfferViewSet.as_view({'put': 'update', 'delete': 'destroy'}),
-         name='admin-offers-detail'),
-    path('api/admin/offers/<int:pk>/activate/',
-         AdminTicketOfferViewSet.as_view({'post': 'activate'}),
-         name='admin-offers-activate'),
-    path('api/admin/offers/<int:pk>/permanent-delete/',
-         AdminTicketOfferViewSet.as_view({'delete': 'permanent_delete'}),
-         name='admin-offers-permanent-delete'),
+    path('api/admin/offers/',AdminTicketOfferViewSet.as_view({'get': 'list', 'post': 'create'}),name='admin-offers-list'),
+    path('api/admin/offers/<int:pk>/', AdminTicketOfferViewSet.as_view({'put': 'update', 'delete': 'destroy'}),name='admin-offers-detail'),
+    path('api/admin/offers/<int:pk>/activate/',AdminTicketOfferViewSet.as_view({'post': 'activate'}),name='admin-offers-activate'),
+    path('api/admin/offers/<int:pk>/permanent-delete/', AdminTicketOfferViewSet.as_view({'delete': 'permanent_delete'}),name='admin-offers-permanent-delete'),
 
-    # Routes ADMIN
+    # Routes ADMIN pour le dashboard
     path('api/admin/dashboard/', admin_dashboard, name='admin-dashboard'),
     path('api/admin/sales-stats/', admin_sales_stats, name='admin-sales-stats'),
 
@@ -143,7 +132,7 @@ urlpatterns = [
     #path('users/me/', debug_user),
 
     # Validation de tickets
-    path('api/tickets/validate/', TicketViewSet.as_view({'post': 'validate'}), name='ticket-validate'),
+    #path('api/tickets/validate/', TicketViewSet.as_view({'post': 'validate'}), name='ticket-validate'),
 
     path('', TemplateView.as_view(template_name='index.html')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

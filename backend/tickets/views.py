@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from django.db.models import Count, Sum
 from django.db import models
+from rest_framework.decorators import api_view, permission_classes
 import json
 
 @api_view(['GET'])
@@ -73,8 +74,6 @@ class TicketOfferViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
 
 
-
-
 class TicketViewSet(viewsets.ModelViewSet):
     serializer_class = TicketSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -113,6 +112,8 @@ class TicketViewSet(viewsets.ModelViewSet):
             })
 
         return Response({'tickets': tickets_data})
+
+
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAdminUser])
     def validate_ticket(self, request, pk=None):
@@ -177,11 +178,11 @@ class TicketViewSet(viewsets.ModelViewSet):
             'offer': offer.name
         }, status=201)
 
-    @action(detail=False, methods=['post'])
+    '''@action(detail=False, methods=['post'])
     def validate(self, request):
 
         ticket_id = request.data.get('ticket_id')
-        return Response({'status': 'validated'})
+        return Response({'status': 'validated'})'''
 
 
 
@@ -441,5 +442,47 @@ def admin_dashboard(request):
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@api_view(['POST'])
+@permission_classes([permissions.IsAdminUser])
+def admin_verify_ticket(request):
+    """Vérifier un ticket via QR code (pour le scanning)"""
+    try:
+        final_key = request.data.get('final_key')
+
+        if not final_key:
+            return Response({'error': 'Clé finale requise'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Rechercher le ticket par la clé finale
+            ticket = Ticket.objects.select_related('user', 'offer').get(final_key=final_key)
+            user = ticket.user
+
+            verification_data = {
+                'ticket_id': ticket.id,
+                'valid': True,
+                'user': {
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'email': user.email
+                },
+                'offer': {
+                    'name': ticket.offer.name,
+                    'type': ticket.offer.get_offer_type_display(),
+                    'price': float(ticket.offer.price)
+                },
+                'is_used': ticket.is_used,
+                'purchase_date': ticket.purchase_date.isoformat()
+            }
+
+            return Response(verification_data)
+
+        except Ticket.DoesNotExist:
+            return Response({
+                'valid': False,
+                'error': 'Ticket non trouvé'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

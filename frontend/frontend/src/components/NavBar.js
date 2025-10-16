@@ -6,6 +6,7 @@ import { styled } from '@mui/material/styles';
 import SportsScoreIcon from '@mui/icons-material/SportsScore';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
@@ -48,39 +49,56 @@ return (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {isAuthenticated && user && (
             <>
-              {/* Bouton "Administration" (visible seulement pour les admins) */}
-              {isAdmin && (
-                <>
-                  <Button
-                    color="inherit"
-                    component={Link}
-                    to="/admin"
-                    startIcon={<AdminPanelSettingsIcon />}
-                    sx={{
-                      display: { xs: 'none', sm: 'flex' },
-                      mr: 1,
-                      '&:hover': {
-                        backgroundColor: 'rgba(255,255,255,0.1)'
-                      }
-                    }}
-                  >
-                    Administration
-                  </Button>
+                {isAdmin && (
+                  <>
+                    {/* Lien existant vers l'admin */}
+                    <Button
+                      color="inherit"
+                      component={Link}
+                      to="/admin"
+                      startIcon={<AdminPanelSettingsIcon />}
+                      sx={{
+                        display: { xs: 'none', sm: 'flex' },
+                        mr: 1,
+                        '&:hover': {
+                          backgroundColor: 'rgba(255,255,255,0.1)'
+                        }
+                      }}
+                    >
+                      Administration
+                    </Button>
 
-                  {/* Version icône seule pour mobile */}
-                  <IconButton
-                    color="inherit"
-                    component={Link}
-                    to="/admin"
-                    sx={{
-                      display: { xs: 'flex', sm: 'none' },
-                      mr: 1
-                    }}
-                  >
-                    <AdminPanelSettingsIcon />
-                  </IconButton>
-                </>
-              )}
+                    {/* NOUVEAU : Lien vers la validation des tickets */}
+                    <Button
+                      color="inherit"
+                      component={Link}
+                      to="/admin/validate-tickets"
+                      startIcon={<QrCodeScannerIcon />}
+                      sx={{
+                        display: { xs: 'none', sm: 'flex' },
+                        mr: 1,
+                        '&:hover': {
+                          backgroundColor: 'rgba(255,255,255,0.1)'
+                        }
+                      }}
+                    >
+                      Valider Tickets
+                    </Button>
+
+                    {/* Versions mobiles */}
+                    <IconButton
+                      color="inherit"
+                      component={Link}
+                      to="/admin/validate-tickets"
+                      sx={{
+                        display: { xs: 'flex', sm: 'none' },
+                        mr: 1
+                      }}
+                    >
+                      <QrCodeScannerIcon />
+                    </IconButton>
+                  </>
+                )}
 
               {/* Bouton "Mes billets" (visible seulement si connecté) */}
               <Button
