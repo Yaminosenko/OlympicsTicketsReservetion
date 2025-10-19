@@ -12,6 +12,7 @@ import NavBar from './components/NavBar';
 import {AuthProvider} from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute';
+import TicketValidationPage from './pages/TicketValidationPage';
 
 const theme = createTheme({
   palette: {
@@ -40,8 +41,9 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/my-tickets" element={<PrivateRoute><UserTicketsPage /></PrivateRoute>} />
-            <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
-          </Routes>
+            <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>}/>
+            <Route path="/admin/validate-tickets" element={<AdminRoute><TicketValidationPage /></AdminRoute>}/>
+            </Routes>
          </AuthProvider>
         </Router>
     </ThemeProvider>
