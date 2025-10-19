@@ -1,7 +1,6 @@
 {
   "name": "frontend",
   "version": "0.1.0",
-  "homepage": "https://olympics-tickets-reservetions.onrender.com/",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -25,6 +24,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
+   "proxy": "https://olympic-reservation-ticket.up.railway.app",
   "eslintConfig": {
     "extends": [
       "react-app",
