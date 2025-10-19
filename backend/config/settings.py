@@ -158,7 +158,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # React
     "http://127.0.0.1:3000",
     "https://olympics-frontend-p5vs.onrender.com",
-    "https://olympic-ticket-reservetion.vercel.app"
+    "https://olympics-tickets-reservetion.vercel.app/"
 ]
 
 #test
