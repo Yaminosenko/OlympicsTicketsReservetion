@@ -15,10 +15,13 @@ from .views import (
     UserViewSet,
     TicketOfferViewSet,
     TicketViewSet,
-    AdminStatsViewSet,
     UserRegistrationView,
     CurrentUserView,
     debug_user,
+    admin_dashboard,
+    admin_sales_stats,
+    AdminTicketOfferViewSet,
+    admin_verify_ticket,
 )
 
 
@@ -89,7 +92,8 @@ router = routers.DefaultRouter()
 router.register(r'api/users', UserViewSet, basename='users')
 router.register(r'api/ticket-offers', TicketOfferViewSet, basename='ticket-offers')
 router.register(r'api/tickets', TicketViewSet, basename='tickets')
-router.register(r'api/admin-stats', AdminStatsViewSet, basename='admin-stats')
+#.register(r'api/admin-stats', AdminStatsViewSet, basename='admin-stats')
+router.register(r'api/admin/offers', AdminTicketOfferViewSet, basename='admin-offers')
 
 urlpatterns = [
     # Routes API principales via router
@@ -101,10 +105,26 @@ urlpatterns = [
     path('api/auth/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
     path('api/user/me/', CurrentUserView.as_view(), name='current-user'),
 
-    # Nouvelle route pour l'achat de tickets
+    # Route pour l'achat de tickets
     path('api/tickets/purchase/',TicketViewSet.as_view({'post': 'purchase'}),name='ticket-purchase'),
 
-    #route pour outrepasser le shell (gratuit)
+    # Routes admin supplémentaires pour les tickets
+    path('api/admin/tickets/',TicketViewSet.as_view({'get': 'admin_tickets'}), name='admin-tickets-list'),
+    path('api/admin/tickets/<int:pk>/validate/',TicketViewSet.as_view({'post': 'validate_ticket'}),name='admin-validate-ticket'),
+    path('api/admin/verify-ticket/', admin_verify_ticket, name='admin-verify-ticket'),
+
+    # Routes pour la gestion admin des offres
+    path('api/admin/offers/',AdminTicketOfferViewSet.as_view({'get': 'list', 'post': 'create'}),name='admin-offers-list'),
+    path('api/admin/offers/<int:pk>/', AdminTicketOfferViewSet.as_view({'put': 'update', 'delete': 'destroy'}),name='admin-offers-detail'),
+    path('api/admin/offers/<int:pk>/activate/',AdminTicketOfferViewSet.as_view({'post': 'activate'}),name='admin-offers-activate'),
+    path('api/admin/offers/<int:pk>/permanent-delete/', AdminTicketOfferViewSet.as_view({'delete': 'permanent_delete'}),name='admin-offers-permanent-delete'),
+
+    # Routes ADMIN pour le dashboard
+    path('api/admin/dashboard/', admin_dashboard, name='admin-dashboard'),
+    path('api/admin/sales-stats/', admin_sales_stats, name='admin-sales-stats'),
+
+
+    #route pour outrepasser le shell
     path('api/secret-migrate/', run_migrations),
     path('api/secret-superuser/', create_superuser),
     path('api/create-sample-offers/', create_sample_offers, name='create_offers'),
@@ -112,7 +132,7 @@ urlpatterns = [
     #path('users/me/', debug_user),
 
     # Validation de tickets
-    path('api/tickets/validate/', TicketViewSet.as_view({'post': 'validate'}), name='ticket-validate'),
+    #path('api/tickets/validate/', TicketViewSet.as_view({'post': 'validate'}), name='ticket-validate'),
 
     path('', TemplateView.as_view(template_name='index.html')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
