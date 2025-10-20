@@ -1,0 +1,95 @@
+// SuperUserCreator.js
+import React, { useState } from 'react';
+import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
+
+const SuperUserCreator = () => {
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: ''
+  });
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setMessage('');
+    setError('');
+
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('username', formData.username);
+      formDataToSend.append('email', formData.email);
+      formDataToSend.append('password', formData.password);
+
+      const response = await fetch('https://olympic-reservation-ticket.up.railway.app/api/secret-superuser/', {
+        method: 'POST',
+        body: formDataToSend,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage('✅ Superuser créé avec succès !');
+        setFormData({ username: '', email: '', password: '' });
+      } else {
+        setError(data.error || 'Erreur lors de la création');
+      }
+    } catch (err) {
+      setError('Erreur de connexion au serveur');
+    }
+  };
+
+  return (
+    <Container maxWidth="sm">
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="h4" gutterBottom>
+          Créer un Superuser
+        </Typography>
+
+        {message && <Alert severity="success">{message}</Alert>}
+        {error && <Alert severity="error">{error}</Alert>}
+
+        <form onSubmit={handleSubmit}>
+          <TextField
+            fullWidth
+            label="Username"
+            value={formData.username}
+            onChange={(e) => setFormData({...formData, username: e.target.value})}
+            margin="normal"
+            required
+          />
+          <TextField
+            fullWidth
+            label="Email"
+            type="email"
+            value={formData.email}
+            onChange={(e) => setFormData({...formData, email: e.target.value})}
+            margin="normal"
+            required
+          />
+          <TextField
+            fullWidth
+            label="Password"
+            type="password"
+            value={formData.password}
+            onChange={(e) => setFormData({...formData, password: e.target.value})}
+            margin="normal"
+            required
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ mt: 3 }}
+          >
+            Créer le Superuser
+          </Button>
+        </form>
+      </Box>
+    </Container>
+  );
+};
+
+export default SuperUserCreator;

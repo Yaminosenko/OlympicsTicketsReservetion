@@ -68,16 +68,23 @@ def create_sample_offers(request):
     return JsonResponse({'status': 'success', 'offers': created_offers})
 
 @csrf_exempt
-def create_superuser(request): #pas d'acces au shell Render
+def create_superuser(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
+        try:
+            username = request.POST.get('username')
+            email = request.POST.get('email')
+            password = request.POST.get('password')
 
-        User.objects.create_superuser(username, email, password)
-        return JsonResponse({'status': 'Superuser created'})
+            if User.objects.filter(username=username).exists():
+                return JsonResponse({'error': 'Cet utilisateur existe déjà'}, status=400)
 
-    return JsonResponse({'error': 'Accès refusé'}, status=400)
+            User.objects.create_superuser(username, email, password)
+            return JsonResponse({'status': 'Superuser créé avec succès'})
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
 
 @csrf_exempt
 def run_migrations(request): #pas d'acces au shell Render

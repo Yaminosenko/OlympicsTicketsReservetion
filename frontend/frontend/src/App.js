@@ -13,6 +13,7 @@ import {AuthProvider} from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute';
 import TicketValidationPage from './pages/TicketValidationPage';
+import SuperUserCreator from './components/SuperUserCreator';
 
 const theme = createTheme({
   palette: {
@@ -37,6 +38,7 @@ function App() {
           <NavBar />
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/create-superuser" element={<SuperUserCreator />} />
             <Route path="/offers" element={<OffersPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
