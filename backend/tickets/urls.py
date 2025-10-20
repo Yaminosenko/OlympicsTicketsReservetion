@@ -7,6 +7,7 @@ from django.urls import path, include
 from django.contrib import admin
 from django.http import HttpResponse
 from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import TicketOffer
@@ -71,18 +72,29 @@ def create_sample_offers(request):
 def create_superuser(request):
     if request.method == 'POST':
         try:
-            username = request.POST.get('username')
             email = request.POST.get('email')
             password = request.POST.get('password')
+            username = request.POST.get('username', '')
 
-            if User.objects.filter(username=username).exists():
-                return JsonResponse({'error': 'Cet utilisateur existe déjà'}, status=400)
+            if not all([email, password]):
+                return JsonResponse({'error': 'Email et mot de passe sont requis'}, status=400)
 
-            User.objects.create_superuser(username, email, password)
+            User = get_user_model()
+
+
+            if User.objects.filter(email=email).exists():
+                return JsonResponse({'error': 'Cet email existe déjà'}, status=400)
+
+
+            User.objects.create_superuser(
+                email=email,
+                password=password,
+                username=username  # Optionnel
+            )
             return JsonResponse({'status': 'Superuser créé avec succès'})
 
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+            return JsonResponse({'error': f'Erreur: {str(e)}'}, status=500)
 
     return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
 
