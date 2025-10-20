@@ -59,7 +59,6 @@ const AdminPage = () => {
   try {
     const token = localStorage.getItem('access_token');
 
-    // Utilisez les routes existantes
       const [offersResponse, statsResponse] = await Promise.all([
       fetch(`${API_BASE_URL}/api/admin/offers/`, {
         headers: {

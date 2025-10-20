@@ -44,14 +44,11 @@ return (
             Jeux Olympiques Paris 2024
           </Typography>
         </Box>
-
-        {/* Section utilisateur*/}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {isAuthenticated && user && (
             <>
                 {isAdmin && (
                   <>
-                    {/* Lien existant vers l'admin */}
                     <Button
                       color="inherit"
                       component={Link}
@@ -67,8 +64,6 @@ return (
                     >
                       Administration
                     </Button>
-
-                    {/* NOUVEAU : Lien vers la validation des tickets */}
                     <Button
                       color="inherit"
                       component={Link}
@@ -84,8 +79,6 @@ return (
                     >
                       Valider Tickets
                     </Button>
-
-                    {/* Versions mobiles */}
                     <IconButton
                       color="inherit"
                       component={Link}
@@ -99,8 +92,6 @@ return (
                     </IconButton>
                   </>
                 )}
-
-              {/* Bouton "Mes billets" (visible seulement si connecté) */}
               <Button
                 color="inherit"
                 component={Link}
@@ -116,8 +107,6 @@ return (
               >
                 Mes billets
               </Button>
-
-              {/* Version icône seule pour mobile */}
               <IconButton
                 color="inherit"
                 component={Link}
@@ -135,7 +124,6 @@ return (
           {isAuthenticated && user ? (
             <>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                {/* Badge admin à côté de l'avatar */}
                 {isAdmin && (
                   <AdminPanelSettingsIcon
                     sx={{

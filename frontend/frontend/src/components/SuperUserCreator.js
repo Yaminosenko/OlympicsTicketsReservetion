@@ -30,7 +30,7 @@ const SuperUserCreator = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage('✅ Superuser créé avec succès !');
+        setMessage('Superuser créé avec succès !');
         setFormData({ username: '', email: '', password: '' });
       } else {
         setError(data.error || 'Erreur lors de la création');
@@ -51,7 +51,6 @@ const SuperUserCreator = () => {
         {error && <Alert severity="error">{error}</Alert>}
 
             <form onSubmit={handleSubmit}>
-          {/* Email en premier - champ requis */}
           <TextField
             fullWidth
             label="Email"
@@ -61,7 +60,6 @@ const SuperUserCreator = () => {
             margin="normal"
             required
           />
-          {/* Password - champ requis */}
           <TextField
             fullWidth
             label="Password"
@@ -71,7 +69,6 @@ const SuperUserCreator = () => {
             margin="normal"
             required
           />
-          {/* Username - optionnel */}
           <TextField
             fullWidth
             label="Username (optionnel)"

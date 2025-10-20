@@ -18,7 +18,7 @@ sys.path.append(str(BASE_DIR))
 SECRET_KEY = 'django-insecure-a3xt+yyzqt=$5z@rz@=j6%e)hgh5#c=6maqx7h5nb!&i!$tlrr'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ['OlympicsTicketsReservetion.herokuapp.com', 'localhost', '127.0.0.1', 'olympic-reservation-ticket.up.railway.app', 'olympics-tickets-reservetion.vercel.app',]
 
 #'olympics-tickets-reservetions.onrender.com', 'https://olympics-frontend-p5vs.onrender.com'
@@ -139,8 +139,9 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
@@ -189,6 +190,22 @@ AUTHENTICATION_BACKENDS = [
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://olympic-reservation-ticket.up.railway.app',
+    'https://*.railway.app',
+]
+
+# Session et CSRF
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'None'
+
+# Si vous utilisez des proxies
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
 
 
 CORS_ALLOW_CREDENTIALS = True
