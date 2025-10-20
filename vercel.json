@@ -1,26 +1,11 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "frontend/frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "build"
-      }
-    }
-  ],
+  "buildCommand": "cd frontend/frontend && CI=false npm run build",
+  "outputDirectory": "frontend/frontend/build",
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/frontend/frontend/build/$1"
-    },
-    {
-      "src": "/(.*)",
-      "status": 200,
-      "headers": {
-        "Cache-Control": "public, max-age=0, must-revalidate"
-      },
-      "dest": "/frontend/frontend/build/index.html"
+      "dest": "/index.html"
     }
   ]
 }
