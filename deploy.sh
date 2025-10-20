@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e  # Arrête au premier erreur
+set -e  #stop first error
 
 cd backend
 
