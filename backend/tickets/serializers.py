@@ -50,17 +50,23 @@ class TicketSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ticket
-        fields = ['id', 'offer', 'purchase_date', 'qr_code', 'qr_code_url', 'is_used', 'final_key']
+        fields = ['id', 'offer', 'purchase_date', 'qr_code_url', 'is_used', 'final_key']
         extra_kwargs = {
-            'qr_code': {'read_only': True},
+            #'qr_code': {'read_only': True},
             'purchase_date': {'read_only': True},
         }
 
     def get_qr_code_url(self, obj):
         request = self.context.get('request')
-        if obj.qr_code and request:
-            return request.build_absolute_uri(obj.qr_code.url)
+        if request:
+            return request.build_absolute_uri(f'/api/tickets/{obj.id}/qr-code/')
         return None
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if 'qr_code' in data:
+            del data['qr_code']
+        return data
 
     def create(self, validated_data):
 
