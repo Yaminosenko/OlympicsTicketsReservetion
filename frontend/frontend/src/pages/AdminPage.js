@@ -29,12 +29,12 @@ import {
   CircularProgress
 } from '@mui/material';
 
-const API_BASE_URL = 'http://127.0.0.1:8000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const AdminPage = () => {
   const [tabValue, setTabValue] = useState(0);
   const [offers, setOffers] = useState([]);
-  const [chartData, setChartData] = useState([]);
+  //const [chartData, setChartData] = useState([]);
   const [globalStats, setGlobalStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -59,15 +59,14 @@ const AdminPage = () => {
   try {
     const token = localStorage.getItem('access_token');
 
-    // Utilisez les routes existantes
-    const [offersResponse, statsResponse] = await Promise.all([
-      fetch('http://127.0.0.1:8000/api/admin/offers/', {
+      const [offersResponse, statsResponse] = await Promise.all([
+      fetch(`${API_BASE_URL}/api/admin/offers/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       }),
-      fetch('http://127.0.0.1:8000/api/admin/sales-stats/', {
+      fetch(`${API_BASE_URL}/api/admin/sales-stats/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'

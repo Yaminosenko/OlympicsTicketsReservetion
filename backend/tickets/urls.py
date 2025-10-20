@@ -7,6 +7,7 @@ from django.urls import path, include
 from django.contrib import admin
 from django.http import HttpResponse
 from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import TicketOffer
@@ -68,16 +69,34 @@ def create_sample_offers(request):
     return JsonResponse({'status': 'success', 'offers': created_offers})
 
 @csrf_exempt
-def create_superuser(request): #pas d'acces au shell Render
+def create_superuser(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
+        try:
+            email = request.POST.get('email')
+            password = request.POST.get('password')
+            username = request.POST.get('username', '')
 
-        User.objects.create_superuser(username, email, password)
-        return JsonResponse({'status': 'Superuser created'})
+            if not all([email, password]):
+                return JsonResponse({'error': 'Email et mot de passe sont requis'}, status=400)
 
-    return JsonResponse({'error': 'Accès refusé'}, status=400)
+            User = get_user_model()
+
+
+            if User.objects.filter(email=email).exists():
+                return JsonResponse({'error': 'Cet email existe déjà'}, status=400)
+
+
+            User.objects.create_superuser(
+                email=email,
+                password=password,
+                username=username  # Optionnel
+            )
+            return JsonResponse({'status': 'Superuser créé avec succès'})
+
+        except Exception as e:
+            return JsonResponse({'error': f'Erreur: {str(e)}'}, status=500)
+
+    return JsonResponse({'error': 'Méthode non autorisée'}, status=405)
 
 @csrf_exempt
 def run_migrations(request): #pas d'acces au shell Render

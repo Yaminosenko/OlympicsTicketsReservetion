@@ -13,6 +13,7 @@ import {AuthProvider} from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute';
 import TicketValidationPage from './pages/TicketValidationPage';
+//import SuperUserCreator from './components/SuperUserCreator';
 
 const theme = createTheme({
   palette: {
@@ -49,6 +50,8 @@ function App() {
     </ThemeProvider>
   );
 }
+
+//<Route path="/create-superuser" element={<SuperUserCreator />} />
 
 /*export default function App() {
   return <h1 style={{ color: 'red' }}>Hello World</h1>;

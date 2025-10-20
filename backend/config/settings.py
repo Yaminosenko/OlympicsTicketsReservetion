@@ -7,7 +7,7 @@ import sys
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+sys.path.append(str(BASE_DIR))
 
 
 
@@ -18,8 +18,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-a3xt+yyzqt=$5z@rz@=j6%e)hgh5#c=6maqx7h5nb!&i!$tlrr'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-ALLOWED_HOSTS = ['OlympicsTicketsReservetion.herokuapp.com', 'localhost', '127.0.0.1', 'olympics-tickets-reservetions.onrender.com', 'https://olympics-frontend-p5vs.onrender.com']
+DEBUG = False
+ALLOWED_HOSTS = ['OlympicsTicketsReservetion.herokuapp.com', 'localhost', '127.0.0.1', 'olympic-reservation-ticket.up.railway.app', 'olympics-tickets-reservetion.vercel.app',]
+
+#'olympics-tickets-reservetions.onrender.com', 'https://olympics-frontend-p5vs.onrender.com'
 
 
 
@@ -73,10 +75,25 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.config.wsgi.application'
 
+def is_railway_environment():
+    return os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('PGHOST')
 
-if 'DATABASE_URL' in os.environ:
+#if 'DATABASE_URL' in os.environ:
+#    DATABASES = {
+#        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+#    }
+
+if is_railway_environment():
+    # CONFIGURATION RAILWAY (production)
     DATABASES = {
-        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('PGDATABASE', 'railway'),
+            'USER': os.environ.get('PGUSER', 'postgres'),
+            'PASSWORD': os.environ.get('PGPASSWORD', ''),
+            'HOST': os.environ.get('PGHOST', 'localhost'),
+            'PORT': os.environ.get('PGPORT', '5432'),
+        }
     }
 else:
     DATABASES = {
@@ -122,8 +139,9 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
@@ -156,7 +174,11 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # React
     "http://127.0.0.1:3000",
     "https://olympics-frontend-p5vs.onrender.com",
+    "https://olympics-tickets-reservetion.vercel.app",
 ]
+
+#test
+CORS_ALLOW_ALL_ORIGINS = True
 
 AUTH_USER_MODEL = 'tickets.User'
 
@@ -168,6 +190,22 @@ AUTHENTICATION_BACKENDS = [
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://olympic-reservation-ticket.up.railway.app',
+    'https://*.railway.app',
+]
+
+# Session et CSRF
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SAMESITE = 'None'
+
+# Si vous utilisez des proxies
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
 
 
 CORS_ALLOW_CREDENTIALS = True
