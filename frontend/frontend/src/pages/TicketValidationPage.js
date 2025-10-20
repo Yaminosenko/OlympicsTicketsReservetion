@@ -87,6 +87,11 @@ const TicketValidationPage = () => {
 
     try {
       const token = localStorage.getItem('access_token');
+
+      console.log('Sending request to:', `${API_BASE_URL}/api/admin/verify-ticket/`);
+      console.log('With token:', token ? 'Present' : 'Missing');
+      console.log('With data:', { final_key: qrCodeData.trim() });
+
       const response = await fetch(`${API_BASE_URL}/api/admin/verify-ticket/`, {
         method: 'POST',
         headers: {
@@ -96,22 +101,33 @@ const TicketValidationPage = () => {
         body: JSON.stringify({ final_key: qrCodeData.trim() })
       });
 
-      const data = await response.json();
+       const responseText = await response.text();
+      console.log('Raw response:', responseText);
+
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        console.error('JSON parse error:', e);
+        throw new Error('Invalid JSON response from server');
+      }
 
       if (response.ok) {
         setTicketInfo(data);
         setError('');
       } else {
-        setError(data.error || 'Erreur lors de la vérification du ticket');
+        setError(data.error || `Erreur serveur (${response.status})`);
         setTicketInfo(null);
       }
     } catch (err) {
-      setError('Erreur de connexion au serveur');
+      console.error('Network error:', err);
+      setError(`Erreur de connexion: ${err.message}`);
       setTicketInfo(null);
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleValidateTicket = async () => {
     if (!ticketInfo) return;
@@ -218,8 +234,6 @@ const TicketValidationPage = () => {
           </Button>
         </Box>
       </Paper>
-
-      {/* Messages d'erreur/succès */}
       {error && (
         <Alert severity="error" sx={{ mb: 3 }}>
           {error}
@@ -231,8 +245,6 @@ const TicketValidationPage = () => {
           {success}
         </Alert>
       )}
-
-      {/* Affichage des informations du ticket */}
       {ticketInfo && (
         <Paper sx={{ p: 3 }}>
           <Typography variant="h6" gutterBottom>
@@ -302,8 +314,6 @@ const TicketValidationPage = () => {
               </Box>
             </CardContent>
           </Card>
-
-          {/* Bouton de validation */}
           {!ticketInfo.is_used && (
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
               <Button
@@ -322,7 +332,6 @@ const TicketValidationPage = () => {
         </Paper>
       )}
 
-      {/* Dialog pour l'import d'image */}
       <Dialog open={imageDialogOpen} onClose={() => setImageDialogOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>
           <PhotoCameraIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
@@ -363,7 +372,6 @@ const TicketValidationPage = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Instructions */}
       <Paper sx={{ p: 2, mt: 3, backgroundColor: 'grey.50' }}>
         <Typography variant="subtitle2" gutterBottom>
           Instructions :
