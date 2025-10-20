@@ -7,11 +7,51 @@ from .serializers import UserSerializer, TicketOfferSerializer, TicketSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.shortcuts import get_object_or_404
-from rest_framework.decorators import api_view
 from django.db.models import Count, Sum
 from django.db import models
 from rest_framework.decorators import api_view, permission_classes
-import json
+from io import BytesIO
+import qrcode
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+import logging
+
+logger = logging.getLogger(__name__)
+
+@api_view(['GET'])
+@csrf_exempt
+def ticket_qr_code(request, ticket_id):
+    try:
+        from .models import Ticket
+
+        ticket = Ticket.objects.get(id=ticket_id)
+
+        # Vérifier que la final_key existe
+        if not ticket.final_key:
+            return HttpResponse('Pas de final_key', status=500)
+
+        # Générer le QR code
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(ticket.final_key)
+        qr.make(fit=True)
+
+        img = qr.make_image(fill_color="black", back_color="white")
+
+        buffer = BytesIO()
+        img.save(buffer, format='PNG')
+        buffer.seek(0)
+
+        return HttpResponse(buffer.getvalue(), content_type='image/png')
+
+    except Ticket.DoesNotExist:
+        return HttpResponse('Ticket non trouvé', status=404)
+    except Exception as e:
+        return HttpResponse(f'Erreur: {str(e)}', status=500)
 
 @api_view(['GET'])
 def debug_user(request):
@@ -154,6 +194,7 @@ class TicketViewSet(viewsets.ModelViewSet):
 
 
 
+
     @action(detail=False, methods=['post'])
     def purchase(self, request):
 
@@ -173,7 +214,7 @@ class TicketViewSet(viewsets.ModelViewSet):
         return Response({
             'status': 'purchased',
             'ticket_id': ticket.id,
-            'qr_code_url': ticket.qr_code.url if ticket.qr_code else None,
+            'qr_code_url': ticket.get_qr_code_url(),
             'final_key': ticket.final_key,
             'offer': offer.name
         }, status=201)
@@ -182,7 +223,9 @@ class TicketViewSet(viewsets.ModelViewSet):
     def validate(self, request):
 
         ticket_id = request.data.get('ticket_id')
-        return Response({'status': 'validated'})'''
+        return Response({'status': 'validated'})
+        
+       'qr_code_url': ticket.qr_code.url if ticket.qr_code else None'''
 
 
 

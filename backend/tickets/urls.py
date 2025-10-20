@@ -18,7 +18,7 @@ from .views import (
     TicketViewSet,
     UserRegistrationView,
     CurrentUserView,
-    debug_user,
+    ticket_qr_code,
     admin_dashboard,
     admin_sales_stats,
     AdminTicketOfferViewSet,
@@ -126,6 +126,7 @@ urlpatterns = [
 
     # Route pour l'achat de tickets
     path('api/tickets/purchase/',TicketViewSet.as_view({'post': 'purchase'}),name='ticket-purchase'),
+    path('api/tickets/<int:ticket_id>/qr-code/', ticket_qr_code, name='ticket-qr-code'),
 
     # Routes admin supplémentaires pour les tickets
     path('api/admin/tickets/',TicketViewSet.as_view({'get': 'admin_tickets'}), name='admin-tickets-list'),

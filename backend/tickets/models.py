@@ -83,16 +83,15 @@ class Ticket(models.Model):
     offer = models.ForeignKey(TicketOffer, on_delete=models.PROTECT)
     purchase_key = models.UUIDField(default=uuid.uuid4, editable=False)
     final_key = models.CharField(max_length=256, editable=False)
-    qr_code = models.ImageField(upload_to='qr_codes/', blank=True)
+    #qr_code = models.ImageField(upload_to='qr_codes/', blank=True)
     purchase_date = models.DateTimeField(auto_now_add=True)
     is_used = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
-        # Génération de la clé finale
         if not self.final_key:
             self.final_key = f"{self.user.account_key}{self.purchase_key}"[:256]
 
-        # Génération du QR code
+        '''# Old Génération du QR code
         if not self.qr_code:
             qr = qrcode.QRCode(
                 version=1,
@@ -108,9 +107,12 @@ class Ticket(models.Model):
             buffer = BytesIO()
             img.save(buffer, format="PNG")
             filename = f"ticket_{self.user.username}_{self.purchase_key}.png"
-            self.qr_code.save(filename, File(buffer), save=False)
+            self.qr_code.save(filename, File(buffer), save=False)'''
 
         super().save(*args, **kwargs)
+
+    def get_qr_code_url(self):
+        return f"/api/tickets/{self.id}/qr-code/"
 
     def __str__(self):
         return f"Ticket {self.id} - {self.user.username}"
