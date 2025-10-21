@@ -18,7 +18,10 @@ sys.path.append(str(BASE_DIR))
 SECRET_KEY = 'django-insecure-a3xt+yyzqt=$5z@rz@=j6%e)hgh5#c=6maqx7h5nb!&i!$tlrr'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+IS_PRODUCTION = os.environ.get('RAILWAY_ENVIRONMENT') or os.environ.get('DJANGO_ENV') == 'production'
+IS_DEVELOPMENT = not IS_PRODUCTION
+
 ALLOWED_HOSTS = ['OlympicsTicketsReservetion.herokuapp.com', 'localhost', '127.0.0.1', 'olympic-reservation-ticket.up.railway.app', 'olympics-tickets-reservetion.vercel.app',]
 
 #'olympics-tickets-reservetions.onrender.com', 'https://olympics-frontend-p5vs.onrender.com'

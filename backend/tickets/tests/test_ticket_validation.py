@@ -12,7 +12,10 @@ from django.contrib.auth import get_user_model
 
 
 def test_backend():
-    BASE_URL = "http://127.0.0.1:8000"
+    if os.environ.get('RAILWAY_ENVIRONMENT'):
+        BASE_URL = "https://olympic-reservation-ticket.up.railway.app"
+    else:
+        BASE_URL = "http://localhost:8000"
 
     print("🧪 TEST COMPLET DU SYSTÈME DE VALIDATION")
     print("=" * 50)

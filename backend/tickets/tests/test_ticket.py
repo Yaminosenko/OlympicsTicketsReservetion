@@ -1,9 +1,14 @@
 import requests
 import sys
+import os
 
 
 def test_ticket_purchase():
-    BASE_URL = "http://localhost:8000"
+    if os.environ.get('RAILWAY_ENVIRONMENT'):
+        BASE_URL = "https://olympic-reservation-ticket.up.railway.app"
+    else:
+        BASE_URL = "http://localhost:8000"
+
     TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3ODY0Nzk4LCJpYXQiOjE3NDc4NjExOTgsImp0aSI6IjlkZjdiOGEwYTQzMDQ1NGM5ZTEwMjJkMTU5OTlhYjRjIiwidXNlcl9pZCI6InRlc3RAZW1haWwuY29tIn0.sSd6xdA6VhMoy3PYvuR-yhAsrnf1wrKVNQDKcGCslQU"  # Obtenez-le via /api/auth/login/
 
     try:

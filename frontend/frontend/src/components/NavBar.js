@@ -27,7 +27,6 @@ const NavBar = () => {
 return (
     <StyledAppBar position="static">
       <Toolbar>
-        {/* Logo/Titre avec lien vers Home */}
         <Box
           component={Link}
           to="/"

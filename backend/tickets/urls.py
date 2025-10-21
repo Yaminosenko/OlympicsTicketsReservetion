@@ -89,7 +89,7 @@ def create_superuser(request):
             User.objects.create_superuser(
                 email=email,
                 password=password,
-                username=username  # Optionnel
+                username=username
             )
             return JsonResponse({'status': 'Superuser créé avec succès'})
 

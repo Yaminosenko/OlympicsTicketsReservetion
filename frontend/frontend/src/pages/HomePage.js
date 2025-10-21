@@ -39,7 +39,6 @@ export default function HomePage() {
 
   return (
     <Container maxWidth="lg">
-      {/* Hero Section */}
       <Box
         sx={{
           textAlign: 'center',
@@ -89,8 +88,6 @@ export default function HomePage() {
           </Button>
         )}
       </Box>
-
-      {/* Description JO */}
       <Paper elevation={3} sx={{ p: 4, mb: 6, borderRadius: 2 }}>
         <Typography variant="h4" gutterBottom sx={{ color: theme.palette.primary.main }}>
           Bienvenue aux JO 2024
@@ -108,8 +105,6 @@ export default function HomePage() {
           aux performances des plus grands sportifs de la planète.
         </Typography>
       </Paper>
-
-      {/* Épreuves sportives */}
       <Typography variant="h4" align="center" gutterBottom sx={{ mb: 4 }}>
         Épreuves à ne pas manquer
       </Typography>

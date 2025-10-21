@@ -286,8 +286,6 @@ const handlePermanentDelete = async (offer) => {
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
-
-      {/* Cartes de statistiques globales */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} sm={6} md={3}>
           <Card>
@@ -404,7 +402,6 @@ const handlePermanentDelete = async (offer) => {
                             >
                               Modifier
                             </Button>
-
                             {/* Pour les offres ACTIVES */}
                             {offer.available ? (
                               <Button
@@ -417,7 +414,6 @@ const handlePermanentDelete = async (offer) => {
                                 Désactiver
                               </Button>
                             ) : (
-                              /* Pour les offres INACTIVES */
                               <>
                                 <Button
                                   size="small"
@@ -441,8 +437,6 @@ const handlePermanentDelete = async (offer) => {
                               </>
                             )}
                           </Box>
-
-                          {/* Message d'information si suppression impossible */}
                           {!offer.available && offer.ticket_count > 0 && (
                             <Typography variant="caption" color="textSecondary" display="block" sx={{ mt: 0.5 }}>
                               {offer.ticket_count} ticket(s) associé(s) - suppression impossible
@@ -509,8 +503,6 @@ const handlePermanentDelete = async (offer) => {
           )}
         </Box>
       </Paper>
-
-      {/* Dialog pour créer/modifier une offre */}
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>
           {editingOffer ? 'Modifier l\'offre' : 'Créer une nouvelle offre'}

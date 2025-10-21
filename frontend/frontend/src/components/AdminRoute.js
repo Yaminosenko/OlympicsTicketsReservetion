@@ -18,7 +18,7 @@ const AdminRoute = ({ children }) => {
     return <Navigate to="/login" />;
   }
 
-  // Vérifie si l'utilisateur est admin ou staff
+  // Vérifie si l'utilisateur est admin et/ou staff
   if (!user?.is_staff && !user?.is_superuser) {
     return (
       <Box sx={{ p: 3 }}>

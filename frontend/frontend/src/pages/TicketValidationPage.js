@@ -96,8 +96,8 @@ const TicketValidationPage = () => {
         body: JSON.stringify({ final_key: qrCodeData.trim() })
       });
 
-       const responseText = await response.text();
-      console.log('Raw response:', responseText);
+      const responseText = await response.text();
+      //console.log('Raw response:', responseText);
 
       let data;
       try {
