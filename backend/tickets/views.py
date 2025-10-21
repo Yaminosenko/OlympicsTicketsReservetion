@@ -491,7 +491,6 @@ def admin_verify_ticket(request):
     """Vérifier un ticket via QR code (pour le scanning)"""
     try:
         final_key = request.data.get('final_key')
-
         if not final_key:
             return Response({'error': 'Clé finale requise'}, status=status.HTTP_400_BAD_REQUEST)
 

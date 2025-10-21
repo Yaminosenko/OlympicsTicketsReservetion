@@ -98,7 +98,7 @@ def test_backend():
         'Content-Type': 'application/json'
     }
 
-    # 6. Tester la vérification du ticket
+    #Tester la vérification du ticket
     print("6. Test vérification du ticket...")
     verify_response = requests.post(
         f"{BASE_URL}/api/admin/verify-ticket/",

@@ -1,0 +1,10 @@
+Welcome. I'm Dimitry and there is the application made for the exam for the Bachelor dev Python by Studi.
+
+ To test this application application localy use both:
+
+ 1. Start Django Sevrer
+ 2. Start (front: npm start)
+
+ To test this application in production environement go to this link:
+ Frontend: https://olympics-tickets-reservetion.vercel.app/
+ Backend: olympic-reservation-ticket.up.railway.app
