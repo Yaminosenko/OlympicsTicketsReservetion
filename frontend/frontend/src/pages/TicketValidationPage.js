@@ -83,9 +83,9 @@ const TicketValidationPage = () => {
     try {
       const token = localStorage.getItem('access_token');
 
-      console.log('Sending request to:', `${API_BASE_URL}/api/admin/verify-ticket/`);
-      console.log('With token:', token ? 'Present' : 'Missing');
-      console.log('With data:', { final_key: qrCodeData.trim() });
+      //console.log('Sending request to:', `${API_BASE_URL}/api/admin/verify-ticket/`);
+      //console.log('With token:', token ? 'Present' : 'Missing');
+      //console.log('With data:', { final_key: qrCodeData.trim() });
 
       const response = await fetch(`${API_BASE_URL}/api/admin/verify-ticket/`, {
         method: 'POST',

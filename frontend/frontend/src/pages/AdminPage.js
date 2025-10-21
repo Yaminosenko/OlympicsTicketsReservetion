@@ -81,16 +81,15 @@ const AdminPage = () => {
     const offersData = await offersResponse.json();
     const statsData = await statsResponse.json();
 
-    console.log('📊 Données offres:', offersData);
-    console.log('📈 Données stats:', statsData);
+    //console.log('📊 Données offres:', offersData);
+    //console.log('📈 Données stats:', statsData);
 
-    // Adaptez selon la structure de vos réponses existantes
     setOffers(offersData.offers || offersData || []);
     setGlobalStats(statsData.global_stats || statsData || {});
     setLoading(false);
 
   } catch (err) {
-    console.error('💥 Erreur:', err);
+    //console.error('💥 Erreur:', err);
     setError(err.message);
     setLoading(false);
   }
