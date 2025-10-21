@@ -22,7 +22,15 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import jsQR from 'jsqr';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://olympic-reservation-ticket.up.railway.app';
+
+console.log('=== ENV DEBUG ===');
+console.log('REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('Actual API_BASE_URL:', API_BASE_URL);
+console.log('=================');
 
 const TicketValidationPage = () => {
   const [qrCodeData, setQrCodeData] = useState('');
